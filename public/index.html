@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+
+<body style="background:black;margin:0;overflow:hidden">
+    <div class="main_content">
+        <div class="tcenter">
+            <canvas style='width:100vw;height: auto;
+			transform: translate(-50%, -50%);
+			top: 50%;
+			position: absolute;
+			left: 50%;' id="canvas">
+            </canvas>
+        </div>
+    </div>
+
+
+</body>
+<script src="jquery-3.5.1.min.js"></script>
+
+<script>
+    $.get("./getWSPort", function (data, status) {
+        st = "ws://localhost:" + data + "/";
+        var ws = new WebSocket(st);
+        ws.onopen = function () {
+            console.log("Connected");
+        };
+    });
+    setInterval("location.reload()", 1000 * 60);
+</script>
+<script type="module">
+    // XR globals.
+    let xrButton = document.getElementById('xr-button');
+    let xrSession = null;
+    let xrRefSpace = null;
+
+    // WebGL scene globals.
+    let gl = null;
+
+    function checkSupportedState() {
+      navigator.xr.isSessionSupported('immersive-ar').then((supported) => {
+        if (supported) {
+          xrButton.innerHTML = 'Start';
+        } else {
+          xrButton.innerHTML = 'AR not found';
+        }
+
+        xrButton.disabled = !supported;
+      });
+    }
+
+    function initXR() {
+      if (!window.isSecureContext) {
+        let message = "WebXR unavailable due to insecure context";
+        document.getElementById("warning-zone").innerText = message;
+      }
+
+      if (navigator.xr) {
+        // if touch screen, use touchstart
+        //if('ontouchstart' in window) {
+        //  xrButton.addEventListener('touchstart', onButtonClicked);
+        //} else {
+        xrButton.addEventListener('click', onButtonClicked);
+        //}
+        navigator.xr.addEventListener('devicechange', checkSupportedState);
+        checkSupportedState();
+      }
+    }
+
+    function onSessionStarted(session) {
+      xrSession = session;
+      xrButton.innerHTML = 'Stop';
+
+      // Show which type of DOM Overlay got enabled (if any)
+      if (session.domOverlayState) {
+      }
+
+      session.addEventListener('end', onSessionEnded);
+
+      let canvas = document.createElement('canvas');
+      gl = canvas.getContext('webgl', {
+        xrCompatible: true
+      });
+      session.updateRenderState({ baseLayer: new XRWebGLLayer(session, gl) });
+      session.requestReferenceSpace('local').then((refSpace) => {
+        xrRefSpace = refSpace;
+        session.requestAnimationFrame(onXRFrame);
+      });
+    }
+
+    function onRequestSessionError(ex) {
+      alert("Failed to start immersive AR session.");
+      console.error(ex.message);
+    }
+
+    function onEndSession(session) {
+      session.end();
+    }
+
+    function onSessionEnded(event) {
+      xrSession = null;
+      xrButton.innerHTML = 'Start';
+      gl = null;
+      window.location.reload();
+    }
+
+    function onXRFrame(t, frame) {
+      let session = frame.session;
+      session.requestAnimationFrame(onXRFrame);
+
+      gl.bindFramebuffer(gl.FRAMEBUFFER, session.renderState.baseLayer.framebuffer);
+
+      // Update the clear color so that we can observe the color in the
+      // headset changing over time. Use a scissor rectangle to keep the AR
+      // scene visible.
+      const width = session.renderState.baseLayer.framebufferWidth;
+      const height = session.renderState.baseLayer.framebufferHeight;
+      gl.enable(gl.SCISSOR_TEST);
+      gl.scissor(0, 0, width, height);
+
+      //  black bg
+      //gl.clearColor(0, 0, 0, 1);
+      //gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      // let time = Date.now();
+      // gl.clearColor(Math.cos(time / 2000), Math.cos(time / 4000), Math.cos(time / 6000), 0.5);
+      // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+      let pose = frame.getViewerPose(xrRefSpace);
+      if (pose) {
+        const p = pose.transform.position;
+        const q = pose.transform.orientation;
+        document.getElementById('pose').innerHTML = "Position: <br>" +
+        p.x.toFixed(3) + ", " + p.y.toFixed(3) + ", " + p.z.toFixed(3) + "<br> " +
+        "Orientation: <br>" + q.x.toFixed(3) + ", " + q.y.toFixed(3) + ", " + q.z.toFixed(3) + ", " + q.w.toFixed(3);
+   
+      } else {
+        document.getElementById('pose').innerHTML = "<p style='color:red'>No pose</p><br><br>";
+      }
+    }
+</script>
+
+</html>
