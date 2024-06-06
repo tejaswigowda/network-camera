@@ -72,7 +72,7 @@ server.on('upgrade', function upgrade(request, socket, head) {
 });
 
 app.get("/", function (req, res) {
-    res.redirect("index.html")
+    res.sendFile(__dirname + '/public/index.html');
 });
 
 app.get("/numberofclients", function (req, res) {
