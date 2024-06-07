@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html style="background-color: black;">
+
 <head>
   <meta charset='utf-8'>
   <meta name='viewport' content='width=device-width, initial-scale=1, user-scalable=no'>
   <meta name='mobile-web-app-capable' content='yes'>
   <meta name='apple-mobile-web-app-capable' content='yes'>
   <script src="quaternion.min.js"></script>
+  <script src="jquery-3.5.1.min.js"></script>
   <style>
     .cube {
       width: 40px;
@@ -116,10 +118,11 @@
   <div id="overlay" style="padding-right:20px">
     <header>
       <h1 style="margin-right: 10px; color:white; text-shadow:0px 0px 3px black">Network XR Camera</h1>
-      <button style="position:fixed; top:30px; right: 20px" id="xr-button" class="barebones-button" disabled>XR not found</button>
+      <button style="position:fixed; top:30px; right: 20px" id="xr-button" class="barebones-button" disabled>XR not
+        found</button>
 
       <div id="inAR" style="height:100vw; display: none;">
-        <div id="pose"style="margin-right: 10px; text-shadow:0px 0px 1px white"></div>
+        <div id="pose" style="margin-right: 10px; text-shadow:0px 0px 1px white"></div>
         <div id='cube' class="cube">
           <div class="cube__face cube__face--front">front</div>
           <div class="cube__face cube__face--back">back</div>
@@ -135,7 +138,18 @@
     </header>
   </div>
   <script>
-    var thePlot;
+    var ws;
+
+    var portStr = ":" + location.port;
+
+    var protocolStr = "ws";
+    if (location.protocol === 'https:') {
+      protocolStr = "wss";
+    }
+    var st = protocolStr + '://' + location.hostname + portStr + "/jpgstream_server";
+    console.log(st);
+    ws = new WebSocket(st);
+
   </script>
   <script type="module">
     // XR globals.
@@ -243,7 +257,7 @@
       // get base64 image
       var base64 = "data:image/png;base64," + gl.canvas.toDataURL("image/png").split(",")[1];
 
-      if(ws.readyState == 1) {
+      if (ws.readyState == 1) {
         ws.send(base64);
       }
 
@@ -277,4 +291,5 @@
     initXR();
   </script>
 </body>
+
 </html>
