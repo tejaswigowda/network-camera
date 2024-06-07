@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 var qrcode = require('qrcode-terminal');
+const chalk = require('chalk')
 
 function getIPAddress() {
     var interfaces = require('os').networkInterfaces();
@@ -85,9 +86,10 @@ app.use(express.static(__dirname + '/public'));
 
 
 server.listen(port, () => {
-	console.log(`Connect camera at http://${ipAddr}:${port}`);
-    qrcode.generate(`http://${ipAddr}:${port}`, function (qrcode) {
+    qrcode.generate(`http://${ipAddr}:${port}`, {small:true}, function (qrcode) {
         console.log(qrcode);
+        console.log(chalk.black.bgGreen(`Connect camera at:`));
+        console.log(chalk.white(`http://${ipAddr}:${port}/\n`));
     });
 })
 
