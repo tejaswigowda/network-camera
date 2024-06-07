@@ -1,9 +1,11 @@
 {
   "name": "network-xr-camera",
-  "version": "1.0.6",
-  "description": "",
+  "version": "1.0.1",
+  "description": "turn any netwrok device into a camera",
   "main": "index.js",
-  "bin": "index.js",
+  "bin": {
+    "networkXRCamera": "index.js"
+  },
   "dependencies": {
     "express": "^4.19.2",
     "http": "^0.0.1-security",
@@ -25,7 +27,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tejaswigowda/network-camera.git"
+    "url": "git+https://github.com/tejaswigowda/networkXRcamera.git"
   },
   "keywords": [
     "ip",
@@ -37,7 +39,7 @@
   "author": "Tejaswi Gowda",
   "license": "GPL-3.0-or-later",
   "bugs": {
-    "url": "https://github.com/tejaswigowda/network-camera/issues"
+    "url": "https://github.com/tejaswigowda/networkXRcamera/issues"
   },
-  "homepage": "https://github.com/tejaswigowda/network-camera#readme"
+  "homepage": "https://github.com/tejaswigowda/networkXRcamera#readme"
 }

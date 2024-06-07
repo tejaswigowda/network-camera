@@ -85,7 +85,7 @@ app.use(express.static(__dirname + '/public'));
 
 
 server.listen(port, () => {
-	console.log(`App listening at http://${ipAddr}:${port}`);
+	console.log(`Connect camera at http://${ipAddr}:${port}`);
     qrcode.generate(`http://${ipAddr}:${port}`, function (qrcode) {
         console.log(qrcode);
     });
